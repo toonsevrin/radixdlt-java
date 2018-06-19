@@ -1,8 +1,14 @@
 package com.radixdlt.client.core.address;
 
 import com.google.gson.JsonElement;
+import com.radixdlt.client.core.RadixUniverse;
 import com.radixdlt.client.core.serialization.Dson;
 import com.radixdlt.client.core.serialization.RadixJson;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import com.radixdlt.client.core.atoms.Atom;
@@ -25,7 +31,17 @@ public class RadixUniverseConfig {
 		RadixUniverseConfig universe = RadixJson.getGson().fromJson(jsonElement, RadixUniverseConfig.class);
 		return universe;
 	}
+	
+	public static RadixUniverseConfig fromFile(File file){
+		if(!file.isFile())
+			throw new IllegalStateException("Bootstrap file not found.");
 
+		try(FileReader fileReader = new FileReader(file)) {
+			return RadixJson.getGson().fromJson(fileReader, RadixUniverseConfig.class);
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to read bootstrap file");
+		}
+	}
 	RadixUniverseConfig(List<Atom> genesis, int port, String name, String description, RadixUniverseType type, long timestamp, ECPublicKey creator, int magic) {
 		this.genesis = Collections.unmodifiableList(genesis);
 		this.name = name;
